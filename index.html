@@ -1,0 +1,810 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SuBulaq — раннее обнаружение сброса в водоёмы</title>
+<meta name="description" content="Автономное судно непрерывно измеряет качество воды, находит аномалию и определяет тип источника загрязнения — за часы, а не за недели.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<!-- Фильтры водного растворения. feTurbulence рисует статичный шум,
+     feDisplacementMap смещает по нему пиксели текста. Скрипт анимирует
+     только атрибут scale: 0 — текст нетронут, 26 — текст «плывёт». -->
+<svg class="wd-defs" aria-hidden="true" focusable="false"><defs>
+  <filter id="wdDissolve" x="-25%" y="-35%" width="150%" height="170%" color-interpolation-filters="sRGB">
+    <feTurbulence type="fractalNoise" baseFrequency="0.007 0.021" numOctaves="2" seed="4" result="wdNoiseA"/>
+    <feDisplacementMap in="SourceGraphic" in2="wdNoiseA" scale="0" xChannelSelector="R" yChannelSelector="G" data-wd="disp1"/>
+  </filter>
+  <filter id="wdReform" x="-25%" y="-35%" width="150%" height="170%" color-interpolation-filters="sRGB">
+    <feTurbulence type="fractalNoise" baseFrequency="0.009 0.017" numOctaves="2" seed="11" result="wdNoiseB"/>
+    <feDisplacementMap in="SourceGraphic" in2="wdNoiseB" scale="0" xChannelSelector="R" yChannelSelector="G" data-wd="disp2"/>
+  </filter>
+</defs></svg>
+
+<!-- ══════════════ NAV ══════════════ -->
+<header class="nav" id="nav">
+  <div class="nav__in">
+    <a class="brand" href="#top">
+      <span class="brand__name">SUBULAQ<sup>™</sup></span>
+      <span class="brand__tag">РАННЕЕ ОБНАРУЖЕНИЕ<br>СБРОСА В ВОДОЁМЫ</span>
+    </a>
+
+    <nav class="nav__links" aria-label="Основная навигация">
+      <a href="#apparat">Аппарат</a>
+      <a href="#how">Как работает</a>
+      <a href="#platform">Платформа</a>
+      <a href="#pricing">Тарифы</a>
+      <a href="#team">Команда</a>
+    </nav>
+
+    <div class="nav__right">
+      <button class="nav__find-btn" id="findBtn" aria-label="Поиск по разделам" aria-expanded="false" aria-controls="findPanel">
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="11" cy="11" r="6.4" stroke="currentColor" stroke-width="1.6"/><path d="m16 16 4 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+      </button>
+      <a class="btn btn--ghost" href="#pilot">Запросить пилот <span class="arr">→</span></a>
+      <p class="nav__triad" aria-hidden="true">ВОДА<br>ДАННЫЕ<br>ИСТОЧНИК</p>
+      <button class="burger" id="burger" aria-label="Меню" aria-expanded="false"><span></span><span></span></button>
+    </div>
+  </div>
+  <div class="find" id="findPanel" hidden>
+    <div class="find__in">
+      <input class="find__input" id="findInput" type="search" placeholder="Раздел или термин" aria-label="Поиск по разделам" autocomplete="off">
+      <ul class="find__list" id="findList">
+        <li><a href="#problem">Проблема<span>дискретный отбор проб</span></a></li>
+        <li><a href="#apparat">Аппарат<span>безэкипажный катамаран</span></a></li>
+        <li><a href="#how">Как работает<span>маршрут, аномалия, источник</span></a></li>
+        <li><a href="#sources">Что определяет<span>типы сбросов</span></a></li>
+        <li><a href="#platform">Платформа<span>карта, измерения, отчёты</span></a></li>
+        <li><a href="#compare">Сравнение<span>лаборатория и буи</span></a></li>
+        <li><a href="#pricing">Тарифы<span>стоимость пилота и подписки</span></a></li>
+        <li><a href="#team">Команда<span>кто делает SuBulaq</span></a></li>
+        <li><a href="#faq">Вопросы<span>частые вопросы</span></a></li>
+        <li><a href="#pilot">Запросить пилот<span>оставить заявку</span></a></li>
+      </ul>
+      <p class="find__empty" id="findEmpty" hidden>Ничего не нашлось</p>
+    </div>
+  </div>
+
+  <div class="nav__mobile" id="navMobile">
+    <a href="#problem">Проблема</a>
+    <a href="#apparat">Аппарат</a>
+    <a href="#how">Как работает</a>
+    <a href="#sources">Что определяет</a>
+    <a href="#platform">Платформа</a>
+    <a href="#compare">Сравнение</a>
+    <a href="#pricing">Тарифы</a>
+    <a href="#team">Команда</a>
+    <a href="#faq">Вопросы</a>
+  </div>
+</header>
+
+<!-- ══════════════ 1. HERO ══════════════ -->
+<section class="hero" id="top">
+  <!-- Слои первого экрана: фото → белая вуаль → крупная подложка-слово →
+       та же фотография, замаскированная по мачте (мачта перекрывает слово) -->
+  <div class="hero__media">
+    <img class="hero__photo" src="assets/vessel-hero.png" alt="Безэкипажный катамаран SuBulaq на воде">
+    <div class="hero__veil" aria-hidden="true"></div>
+    <div class="hero__ghost" aria-hidden="true">SUBULAQ</div>
+    <img class="hero__photo hero__photo--mast" src="assets/vessel-hero.png" alt="" aria-hidden="true">
+  </div>
+
+  <div class="hero__in">
+    <div class="hero__copy">
+      <p class="eyebrow"><span class="eyebrow__line"></span>АВТОНОМНЫЙ МОНИТОРИНГ ВОДЫ</p>
+      <h1 class="hero__h1">Находим сброс<br>за&nbsp;часы,<br>а&nbsp;не&nbsp;за&nbsp;недели.</h1>
+      <p class="hero__sub">Безэкипажный катамаран. Данные в&nbsp;реальном времени.<br>Чистые реки, живые экосистемы<br>и&nbsp;доказуемый источник загрязнения.</p>
+      <div class="hero__cta">
+        <a class="btn btn--solid" href="#platform">Открыть демо <span class="arr">→</span></a>
+        <a class="btn btn--line" href="#pilot">Запросить пилот</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="hero__cards">
+    <article class="gcard gcard--a">
+      <svg class="lead" viewBox="0 0 140 140" fill="none" aria-hidden="true">
+        <path d="M140 14 H126 L86 116 H16" stroke="currentColor" stroke-width="1"/>
+        <circle cx="126" cy="14" r="3" fill="currentColor" stroke="none"/>
+        <circle cx="12" cy="116" r="3.5" stroke="currentColor" stroke-width="1"/>
+      </svg>
+      <div class="gcard__top">
+        <span class="gicon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M12 3.5c3.4 4 5.3 6.7 5.3 9.1A5.3 5.3 0 0 1 12 17.9a5.3 5.3 0 0 1-5.3-5.3c0-2.4 1.9-5.1 5.3-9.1Z" stroke="currentColor" stroke-width="1.5"/></svg></span>
+        <span class="gcard__lbl">Качество воды</span><span class="dot"></span>
+      </div>
+      <p class="gcard__val">94<span>%</span></p>
+    </article>
+
+    <article class="gcard gcard--b">
+      <svg class="lead" viewBox="0 0 240 175" fill="none" aria-hidden="true">
+        <path d="M240 14 H224 L150 160 H18" stroke="currentColor" stroke-width="1"/>
+        <circle cx="224" cy="14" r="3" fill="currentColor" stroke="none"/>
+        <circle cx="14" cy="160" r="3.5" stroke="currentColor" stroke-width="1"/>
+      </svg>
+      <div class="gcard__top">
+        <span class="gicon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M9.5 3v6.2L5.2 17a2.2 2.2 0 0 0 1.9 3.3h9.8a2.2 2.2 0 0 0 1.9-3.3l-4.3-7.8V3" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M8.4 3h7.2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span>
+        <span class="gcard__lbl">pH</span><span class="dot"></span>
+      </div>
+      <p class="gcard__val" data-count="7.4" data-dec="1">7.4</p>
+    </article>
+
+    <article class="gcard gcard--c">
+      <svg class="lead" viewBox="0 0 230 120" fill="none" aria-hidden="true">
+        <path d="M230 14 H214 L140 96 H18" stroke="currentColor" stroke-width="1"/>
+        <circle cx="214" cy="14" r="3" fill="currentColor" stroke="none"/>
+        <circle cx="14" cy="96" r="3.5" stroke="currentColor" stroke-width="1"/>
+      </svg>
+      <div class="gcard__top">
+        <span class="gicon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M4.5 12a7.5 7.5 0 0 1 15 0" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M7.8 12a4.2 4.2 0 0 1 8.4 0" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><circle cx="12" cy="12" r="1.4" fill="currentColor"/></svg></span>
+        <span class="gcard__lbl">Мониторинг</span><span class="dot"></span>
+      </div>
+      <div class="spark" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+    </article>
+
+    <article class="gcard gcard--d">
+      <svg class="lead" viewBox="0 0 190 120" fill="none" aria-hidden="true">
+        <path d="M190 14 H174 L110 98 H18" stroke="currentColor" stroke-width="1"/>
+        <circle cx="174" cy="14" r="3" fill="currentColor" stroke="none"/>
+        <circle cx="14" cy="98" r="3.5" stroke="currentColor" stroke-width="1"/>
+      </svg>
+      <div class="gcard__top">
+        <span class="gicon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="8.5" stroke="currentColor" stroke-width="1.5"/><path d="M12 7.4V12l3 1.8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span>
+        <p class="gcard__val">24/7</p><span class="dot"></span>
+      </div>
+      <p class="gcard__lbl gcard__lbl--under">Автономность</p>
+      <p class="gcard__sub">без экипажа<br>на борту</p>
+    </article>
+  </div>
+
+  <div class="hero__foot">
+    <p class="hero__foot-l"><span class="rule rule--v"></span>ДАННЫЕ ДЛЯ ЧИСТЫХ<br>РЕК КАЗАХСТАНА</p>
+    <div class="hero__pager" aria-hidden="true"><b>01</b><span>02</span><span>03</span></div>
+    <p class="hero__foot-r">РАННЕЕ ОБНАРУЖЕНИЕ<br>ДОКАЗУЕМЫЙ ИСТОЧНИК<span class="rule rule--h"></span></p>
+  </div>
+</section>
+
+<!-- ══════════════ 2. ПРОБЛЕМА → АППАРАТ ══════════════
+     Две сцены одного закреплённого экрана: растворение в воде.
+     Без JS это просто два обычных экрана подряд. -->
+<div class="morph" id="morph">
+<section class="sec sec--problem" id="problem">
+  <div class="sec__media" aria-hidden="true">
+    <div class="sec__photo" data-wd="water"></div>
+    <div class="sec__veil"></div>
+    <div class="sec__ghost" data-wd="ghost1">ПРОБЛЕМА</div>
+    <div class="lightpass" data-wd="pass1"></div>
+  </div>
+
+  <div class="wrap">
+    <div class="prow">
+      <header class="shead">
+        <p class="eyebrow" data-wd="s1-eyebrow"><span class="eyebrow__line"></span>01 — ПРОБЛЕМА</p>
+        <h2 class="shead__h" data-wd="s1-h">
+          <span class="ln"><i>Пробу везут в лабораторию.</i></span>
+          <span class="ln"><i>К моменту результата</i></span>
+          <span class="ln"><i><em>источник уже не найти</em>.</i></span>
+        </h2>
+        <p class="shead__p" data-wd="s1-p">Государственный мониторинг в Казахстане построен на дискретном отборе проб. Залповый сброс между отборами не фиксируется вообще — а когда анализ готов, вода в реке давно сменилась, и доказать, кто сбросил, уже невозможно.</p>
+      </header>
+
+      <ul class="pcards" data-wd="s1-cards">
+        <li class="pcard">
+          <span class="pcard__i" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="8.5" stroke="currentColor" stroke-width="1.5"/><path d="M12 7.4V12l3 1.8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span>
+          <span>Нет непрерывного мониторинга</span>
+        </li>
+        <li class="pcard">
+          <span class="pcard__i" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M5 19V11M12 19V6M19 19v-5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg></span>
+          <span>Реакция запаздывает</span>
+        </li>
+        <li class="pcard">
+          <span class="pcard__i" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M4.5 8.6V6.4a1.9 1.9 0 0 1 1.9-1.9h2.2M15.4 4.5h2.2a1.9 1.9 0 0 1 1.9 1.9v2.2M19.5 15.4v2.2a1.9 1.9 0 0 1-1.9 1.9h-2.2M8.6 19.5H6.4a1.9 1.9 0 0 1-1.9-1.9v-2.2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><circle cx="12" cy="12" r="2.6" stroke="currentColor" stroke-width="1.5"/></svg></span>
+          <span>Источник сложно доказать</span>
+        </li>
+      </ul>
+    </div>
+
+    <div class="facts" data-wd="s1-facts">
+      <article class="fact">
+        <p class="fact__n">373</p>
+        <p class="fact__u">створа на 134 водных объекта</p>
+        <a class="fact__src" href="https://www.kazhydromet.kz/ru/ecology/ob-ekologicheskom-monitoringe" target="_blank" rel="noopener">Казгидромет <span class="arr">↗</span></a>
+      </article>
+
+      <article class="fact">
+        <p class="fact__n">17</p>
+        <p class="fact__u">аккредитованных лабораторий</p>
+        <a class="fact__src" href="https://www.inform.kz/ru/kak-provoditsya-monitoring-kachestva-vodnyh-ob-ektov-v-kazahstane_a3696278" target="_blank" rel="noopener">Kazinform <span class="arr">↗</span></a>
+      </article>
+
+      <article class="fact">
+        <p class="fact__n">~30<i>%</i></p>
+        <p class="fact__u">хозбытовых стоков очищается безопасно</p>
+        <a class="fact__src" href="https://www.sdg6data.org/en/country-or-area/kazakhstan" target="_blank" rel="noopener">UN-Water · SDG 6 <span class="arr">↗</span></a>
+      </article>
+
+      <article class="fact">
+        <p class="fact__n">49<i>%</i></p>
+        <p class="fact__u">водных объектов с хорошим качеством воды</p>
+        <a class="fact__src" href="https://www.sdg6data.org/en/country-or-area/kazakhstan" target="_blank" rel="noopener">UN-Water · SDG 6 <span class="arr">↗</span></a>
+      </article>
+    </div>
+
+    <div class="chain" data-wd="s1-chain">
+      <div class="chain__i">
+        <span class="chain__ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M10 3.5h4M11 3.5v3.2L7.6 19a1.7 1.7 0 0 0 1.6 2.2h5.6a1.7 1.7 0 0 0 1.6-2.2L13 6.7V3.5" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M8.8 14h6.4" stroke="currentColor" stroke-width="1.5"/></svg></span>
+        <span class="chain__t"><b>Отбор вручную</b><span>периодичность зависит от категории водоёма</span></span>
+      </div>
+      <div class="chain__a" aria-hidden="true">→</div>
+      <div class="chain__i">
+        <span class="chain__ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M2.8 16.4V7.2a1 1 0 0 1 1-1h9.4a1 1 0 0 1 1 1v9.2M14.2 9.6h3.3l3.7 3.4v3.4" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><circle cx="7" cy="17.6" r="1.9" stroke="currentColor" stroke-width="1.5"/><circle cx="17.4" cy="17.6" r="1.9" stroke="currentColor" stroke-width="1.5"/><path d="M8.9 17.6h6.6M2.8 17.6h2.3" stroke="currentColor" stroke-width="1.5"/></svg></span>
+        <span class="chain__t"><b>Дорога и очередь</b><span>проба едет в одну из 17 лабораторий</span></span>
+      </div>
+      <div class="chain__a" aria-hidden="true">→</div>
+      <div class="chain__i">
+        <span class="chain__ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M6 3.4h7.4L19 8.8v11.8H6z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M13.2 3.6v5.4h5.4M9 13h7M9 16.4h5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span>
+        <span class="chain__t"><b>Результат</b><span>приходит, когда след уже смыло</span></span>
+      </div>
+    </div>
+  </div>
+
+  <div class="sec__foot" data-wd="s1-foot">
+    <p class="sec__foot-l"><span class="rule rule--v"></span>ДАННЫЕ ДЛЯ ЧИСТЫХ<br>РЕК КАЗАХСТАНА</p>
+    <div class="sec__pager" aria-hidden="true"><b>01</b><span>02</span><span>03</span></div>
+    <p class="sec__foot-r">ЧИСТЫЕ РЕКИ<br>ЖИВЫЕ ЭКОСИСТЕМЫ<span class="rule rule--h"></span></p>
+  </div>
+</section>
+  <!-- ── СЦЕНА 2: АППАРАТ ─────────────────────────
+       В обычном потоке это самостоятельный экран. Когда доступны GSAP и
+       ScrollTrigger (десктоп, движение не отключено), скрипт кладёт его
+       поверх «Проблемы» и проявляет по прокрутке — см. water-dissolve.js -->
+  <section class="sec sec--intro" id="apparat-intro">
+    <div class="sec__media" aria-hidden="true">
+      <img class="sec__usv" data-wd="usv" src="assets/vessel-hero.png" alt="">
+      <div class="sec__wake" data-wd="wake"></div>
+      <div class="sec__veil sec__veil--intro"></div>
+      <div class="sec__ghost" data-wd="ghost2">АППАРАТ</div>
+      <div class="lightpass" data-wd="pass2"></div>
+    </div>
+
+    <div class="wrap">
+      <div class="prow prow--intro">
+        <header class="shead">
+          <p class="eyebrow" data-wd="s2-eyebrow"><span class="eyebrow__line"></span>02 — АППАРАТ</p>
+          <h2 class="shead__h" data-wd="s2-h">
+            <span class="ln"><i>Безэкипажное судно,</i></span>
+            <span class="ln"><i>собранное под <em>наши</em></i></span>
+            <span class="ln"><i><em>реки</em>.</i></span>
+          </h2>
+        </header>
+        <p class="shead__p" data-wd="s2-p">Корпус, узел забора пробы и энергетика рассчитаны на мелководье, взвесь и резкие перепады температуры — условия равнинных рек и водохранилищ Казахстана, а не лабораторного бассейна.</p>
+      </div>
+    </div>
+
+    <div class="sec__foot" data-wd="s2-foot">
+      <p class="sec__foot-l"><span class="rule rule--v"></span>ДАННЫЕ ДЛЯ ЧИСТЫХ<br>РЕК КАЗАХСТАНА</p>
+      <div class="sec__pager" aria-hidden="true"><span>01</span><b>02</b><span>03</span></div>
+      <p class="sec__foot-r">КОРПУС · ЗОНД<br>СВЯЗЬ · ЭНЕРГИЯ<span class="rule rule--h"></span></p>
+    </div>
+  </section>
+</div>
+
+<!-- ══════════════ 3. АППАРАТ ══════════════ -->
+<section class="sec sec--dark" id="apparat">
+  <div class="wrap">
+    <header class="shead">
+      <p class="eyebrow"><span class="eyebrow__line"></span>02 — АППАРАТ · УЗЛЫ</p>
+      <h2 class="shead__h">Что стоит <em>на борту</em>.</h2>
+    </header>
+
+    <div class="apparat">
+      <figure class="apparat__vis">
+        <img src="assets/vessel-tech.png" alt="Устройство судна SuBulaq" onerror="this.closest('.apparat__vis').classList.add('is-empty')">
+        <figcaption class="apparat__slot">
+          <span class="apparat__slot-lbl">СЛОТ ПОД РЕНДЕР УЗЛОВ</span>
+          <span class="apparat__slot-txt">assets/vessel-tech.png · 1800×1200 · вид в три четверти</span>
+        </figcaption>
+        <!-- Выноски: координаты --x / --y подгоняются под ваш рендер -->
+        <button class="pin" style="--x:26%;--y:32%" data-pin="Мультипараметрический зонд" data-desc="pH, растворённый кислород, электропроводность, мутность, температура, ОВП">1</button>
+        <button class="pin" style="--x:45%;--y:20%" data-pin="Камера 4K + ИК" data-desc="Фиксация плёнки, пены и цветности с привязкой к координатам и времени">2</button>
+        <button class="pin" style="--x:62%;--y:27%" data-pin="Солнечная панель" data-desc="Подзарядка в ходе смены, продлевает автономность в светлое время суток">3</button>
+        <button class="pin" style="--x:76%;--y:40%" data-pin="Связь LTE / спутник" data-desc="Телеметрия в облако в реальном времени, буферизация при потере сети">4</button>
+        <button class="pin" style="--x:38%;--y:64%" data-pin="Узел забора пробы" data-desc="Отбор с регулируемой глубины, до 6 контрольных ёмкостей для лаборатории">5</button>
+      </figure>
+
+      <div class="apparat__spec">
+        <p class="spec__cap">ТЕХНИЧЕСКИЕ ХАРАКТЕРИСТИКИ</p>
+        <!-- TODO: сверить значения с фактическим прототипом перед публикацией -->
+        <dl class="spec">
+          <div><dt>Длина корпуса</dt><dd>1 250 мм</dd></div>
+          <div><dt>Масса снаряжённая</dt><dd>18 кг</dd></div>
+          <div><dt>Автономность</dt><dd>до 8 ч хода</dd></div>
+          <div><dt>Скорость</dt><dd>до 6 км/ч</dd></div>
+          <div><dt>Глубина забора</dt><dd>0,3 — 3 м</dd></div>
+          <div><dt>Параметры на борту</dt><dd>6 непрерывных + 6 проб</dd></div>
+          <div><dt>Навигация</dt><dd>GNSS, маршрут по точкам</dd></div>
+          <div><dt>Связь</dt><dd>LTE, резерв — спутник</dd></div>
+          <div><dt>Питание</dt><dd>LiFePO₄ + солнечная панель</dd></div>
+          <div><dt>Защита</dt><dd>IP67, −5…+40 °C</dd></div>
+        </dl>
+        <p class="spec__note">Значения приведены для текущего прототипа и уточняются по результатам полевых испытаний.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════ 4. КАК ЭТО РАБОТАЕТ ══════════════ -->
+<section class="sec" id="how">
+  <div class="wrap">
+    <header class="shead">
+      <p class="eyebrow"><span class="eyebrow__line"></span>03 — КАК ЭТО РАБОТАЕТ</p>
+      <h2 class="shead__h">От касания воды<br>до готового отчёта.</h2>
+    </header>
+
+    <ol class="steps">
+      <li class="step">
+        <span class="step__n">01</span>
+        <span class="step__ic" aria-hidden="true"><svg viewBox="0 0 32 32" fill="none"><path d="M16 4c5 6 7.8 9.9 7.8 13.4A7.8 7.8 0 0 1 16 25.2a7.8 7.8 0 0 1-7.8-7.8C8.2 13.9 11 10 16 4Z" stroke="currentColor" stroke-width="1.7"/><path d="M6 28.5c2.5 0 2.5-1.6 5-1.6s2.5 1.6 5 1.6 2.5-1.6 5-1.6 2.5 1.6 5 1.6" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg></span>
+        <h3>Сбор на борту</h3>
+        <p>Судно идёт по маршруту и измеряет шесть параметров непрерывно — с привязкой к координатам, времени и глубине.</p>
+        <span class="step__t">в реальном времени</span>
+      </li>
+      <li class="step">
+        <span class="step__n">02</span>
+        <span class="step__ic" aria-hidden="true"><svg viewBox="0 0 32 32" fill="none"><path d="M3 22l6-8 5 5 6-11 4 7 5-4" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/><circle cx="20" cy="8" r="3.2" stroke="currentColor" stroke-width="1.7"/></svg></span>
+        <h3>Поиск аномалии</h3>
+        <p>Сервер сравнивает поток с фоновой нормой этого участка и отделяет реальный выброс от сезонного дрейфа и погоды.</p>
+        <span class="step__t">секунды после замера</span>
+      </li>
+      <li class="step">
+        <span class="step__n">03</span>
+        <span class="step__ic" aria-hidden="true"><svg viewBox="0 0 32 32" fill="none"><path d="M16 3.5 27 9v14l-11 5.5L5 23V9l11-5.5Z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><path d="M16 14.5 27 9M16 14.5 5 9m11 5.5v14" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg></span>
+        <h3>Классификация источника</h3>
+        <p>Сочетание параметров сверяется с сигнатурами пяти типов загрязнения — система называет вероятный характер сброса.</p>
+        <span class="step__t">с оценкой уверенности</span>
+      </li>
+      <li class="step">
+        <span class="step__n">04</span>
+        <span class="step__ic" aria-hidden="true"><svg viewBox="0 0 32 32" fill="none"><path d="M7 3.5h12l6 6V28a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V4.5a1 1 0 0 1 1-1Z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><path d="M18.5 3.5V10H25M11 17h10M11 22h7" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg></span>
+        <h3>Готовый отчёт</h3>
+        <p>Карта, график превышений относительно ПДК, фото с места и журнал калибровки — в форме, пригодной для передачи в надзор.</p>
+        <span class="step__t">PDF и выгрузка данных</span>
+      </li>
+    </ol>
+  </div>
+</section>
+
+<!-- ══════════════ 5. ЧТО ОПРЕДЕЛЯЕТ СИСТЕМА ══════════════ -->
+<section class="sec sec--sources" id="sources">
+  <div class="wrap">
+    <header class="shead shead--split">
+      <div>
+        <p class="eyebrow"><span class="eyebrow__line"></span>04 — ГЛАВНОЕ ОТЛИЧИЕ</p>
+        <h2 class="shead__h">Не просто «вода грязная».<br><em>Кто именно</em> её загрязнил.</h2>
+      </div>
+      <p class="shead__p">Датчик показывает превышение. Ценность появляется, когда по сочетанию параметров можно назвать характер сброса — это и есть то, ради чего к нам приходят. Ниже — пять сигнатур, которые различает система.</p>
+    </header>
+
+    <div class="srcs">
+      <article class="src">
+        <div class="src__hd"><span class="src__n">01</span><h3>Хозяйственно-бытовой</h3></div>
+        <p class="src__d">Канализационный выпуск, септик, неподключённый частный сектор.</p>
+        <p class="src__lbl">СИГНАТУРА</p>
+        <ul class="chips"><li>аммоний ↑</li><li>БПК₅ ↑</li><li>фосфаты ↑</li><li>O₂ ↓</li><li>мутность ↑</li></ul>
+        <p class="src__mk">Характерный признак: рост органики и падение кислорода при стабильной электропроводности.</p>
+      </article>
+
+      <article class="src">
+        <div class="src__hd"><span class="src__n">02</span><h3>Сельскохозяйственный</h3></div>
+        <p class="src__d">Смыв с полей, животноводческие стоки, орошаемые массивы.</p>
+        <p class="src__lbl">СИГНАТУРА</p>
+        <ul class="chips"><li>нитраты ↑</li><li>общий фосфор ↑</li><li>сезонность</li><li>связь с осадками</li></ul>
+        <p class="src__mk">Характерный признак: пики после полива и дождей, привязка к границе угодий.</p>
+      </article>
+
+      <article class="src">
+        <div class="src__hd"><span class="src__n">03</span><h3>Промышленный</h3></div>
+        <p class="src__d">Обогатительные фабрики, хвостохранилища, металлургия, гальваника.</p>
+        <p class="src__lbl">СИГНАТУРА</p>
+        <ul class="chips"><li>электропроводность ↑↑</li><li>сдвиг pH</li><li>тяжёлые металлы</li><li>резкий фронт</li></ul>
+        <p class="src__mk">Характерный признак: скачок минерализации и pH за минуты — природа так не меняется.</p>
+      </article>
+
+      <article class="src">
+        <div class="src__hd"><span class="src__n">04</span><h3>Нефтегазовый</h3></div>
+        <p class="src__d">Нефтебазы, трубопроводы, перевалка, промысловые площадки.</p>
+        <p class="src__lbl">СИГНАТУРА</p>
+        <ul class="chips"><li>нефтепродукты ↑</li><li>плёнка на камере</li><li>фенолы ↑</li><li>O₂ ↓</li></ul>
+        <p class="src__mk">Характерный признак: оптический след на поверхности плюс химия — подтверждение с двух каналов.</p>
+      </article>
+
+      <article class="src src--nat">
+        <div class="src__hd"><span class="src__n">05</span><h3>Природный фон</h3></div>
+        <p class="src__d">Паводок, взмучивание дна, цветение, естественный вынос железа.</p>
+        <p class="src__lbl">СИГНАТУРА</p>
+        <ul class="chips"><li>мутность ↑</li><li>железо ↑</li><li>после осадков</li><li>без сдвига pH</li></ul>
+        <p class="src__mk">Отсекается отдельно: ложная тревога стоит дороже пропущенной, если по ней выезжает инспектор.</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════ 6. ПЛАТФОРМА ОПЕРАТОРА ══════════════ -->
+<section class="sec sec--dark" id="platform">
+  <div class="wrap">
+    <header class="shead shead--split">
+      <div>
+        <p class="eyebrow"><span class="eyebrow__line"></span>05 — ПЛАТФОРМА</p>
+        <h2 class="shead__h">Оператор видит воду<br>с телефона.</h2>
+      </div>
+      <p class="shead__p">Дашборд с последними замерами, флот аппаратов, телеметрия судна на воде и готовые отчёты — в одном приложении. Переключайте вкладки, чтобы посмотреть экраны.</p>
+    </header>
+
+    <div class="platform">
+      <div class="platform__tabs" role="tablist" aria-label="Экраны приложения">
+        <button class="ptab is-on" role="tab" aria-selected="true" data-tab="dash">Дашборд</button>
+        <button class="ptab" role="tab" aria-selected="false" data-tab="fleet">Флот</button>
+        <button class="ptab" role="tab" aria-selected="false" data-tab="craft">Аппарат</button>
+        <button class="ptab" role="tab" aria-selected="false" data-tab="report">Отчёт</button>
+      </div>
+
+      <div class="platform__body">
+        <div class="phone">
+          <div class="phone__notch" aria-hidden="true"></div>
+          <div class="phone__screen">
+            <div class="app">
+              <div class="app__bar"><span>9:41</span><span class="app__sig" aria-hidden="true">●●● LTE</span></div>
+
+              <div class="pane is-on" data-pane="dash">
+                <img src="assets/app-dashboard.png" alt="Экран «Дашборд»: последние замеры pH, мутности, температуры, TDS/EC и микрочастиц с отметками нормы и превышения, модуль CV-детекции микропластика и лента уведомлений.">
+              </div>
+              <div class="pane" data-pane="fleet">
+                <img src="assets/app-fleet.png" alt="Экран «Флот USV»: список аппаратов AW-01…AW-04 со статусом миссии, зарядом батареи и качеством связи.">
+              </div>
+              <div class="pane" data-pane="craft">
+                <img src="assets/app-craft.png" alt="Экран аппарата AW-01 «Балхаш»: заряд, скорость, координаты, связь, состояние сенсоров, ход миссии и команды управления.">
+              </div>
+              <div class="pane" data-pane="report">
+                <img src="assets/app-report.png" alt="Экран «Отчёт мониторинга»: профиль норм, средние значения за период, индекс загрязнения и качества, экспорт PDF.">
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <ul class="platform__feats">
+          <li><b>Замеры против норматива</b><span>pH, мутность, температура, TDS/EC, электропроводность — сразу с пометкой «норма» или «превышение» по ГОСТ 31861-2012 и ПДК РК, а не в сырых единицах.</span></li>
+          <li><b>Детекция микропластика</b><span>Отдельный модуль компьютерного зрения: счёт частиц по кадру с фильтра, скрининг в частицах на литр.</span></li>
+          <li><b>Флот и миссии</b><span>Статус каждого аппарата, заряд, канал связи и ход обхода по путевым точкам — на одном экране.</span></li>
+          <li><b>Управление на воде</b><span>Пауза, возврат на базу, забор пробы по команде, ручной режим и аварийная остановка.</span></li>
+          <li><b>Отчёты</b><span>Средние за период, индекс загрязнения и индекс качества, экспорт PDF и отправка заказчику в один клик.</span></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════ 7. КОМУ ЭТО НУЖНО ══════════════ -->
+<section class="sec" id="who">
+  <div class="wrap">
+    <header class="shead">
+      <p class="eyebrow"><span class="eyebrow__line"></span>06 — КОМУ ЭТО НУЖНО</p>
+      <h2 class="shead__h">Четыре разные боли —<br>один аппарат.</h2>
+    </header>
+
+    <div class="whos">
+      <article class="who">
+        <p class="who__k">01</p>
+        <h3>Водоканал</h3>
+        <p class="who__pain"><b>Боль.</b> Загрязнение приходит на водозабор без предупреждения — реагируют по факту, когда вода уже в системе.</p>
+        <p class="who__win"><b>Результат.</b> Предупреждение выше по течению и запас времени, чтобы переключить забор или остановить подачу.</p>
+      </article>
+      <article class="who">
+        <p class="who__k">02</p>
+        <h3>Горнодобыча</h3>
+        <p class="who__pain"><b>Боль.</b> При любом ЧП на реке подозрение падает на предприятие, а доказать обратное нечем.</p>
+        <p class="who__win"><b>Результат.</b> Непрерывный независимый ряд данных выше и ниже сброса — доказательная база в обе стороны.</p>
+      </article>
+      <article class="who">
+        <p class="who__k">03</p>
+        <h3>Акимат и Казгидромет</h3>
+        <p class="who__pain"><b>Боль.</b> Створов мало, выезд стоит дорого, между отборами водоём никто не видит.</p>
+        <p class="who__win"><b>Результат.</b> Покрытие участков без стационарных постов и данные в едином формате для отчётности.</p>
+      </article>
+      <article class="who">
+        <p class="who__k">04</p>
+        <h3>Школы и эко-НКО</h3>
+        <p class="who__pain"><b>Боль.</b> Экологический проект упирается в отсутствие собственных измерений — остаются пересказы чужих цифр.</p>
+        <p class="who__win"><b>Результат.</b> Свои замеры на своём водоёме, открытые данные и материал для исследовательских работ.</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════ 8. СРАВНЕНИЕ ══════════════ -->
+<section class="sec sec--compare" id="compare">
+  <div class="wrap">
+    <header class="shead">
+      <p class="eyebrow"><span class="eyebrow__line"></span>07 — СРАВНЕНИЕ</p>
+      <h2 class="shead__h">Против ручного отбора<br>и стационарного поста.</h2>
+    </header>
+
+    <div class="tablewrap">
+      <table class="ctable">
+        <thead>
+          <tr>
+            <th scope="col"><span class="ctable__cap">ПАРАМЕТР</span></th>
+            <th scope="col">Ручной отбор<br><span>проба в лабораторию</span></th>
+            <th scope="col">Стационарный пост<br><span>буй / створ</span></th>
+            <th scope="col" class="is-us">SuBulaq<br><span>безэкипажное судно</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><th scope="row">Охват территории</th><td>Точка выезда</td><td>Одна фиксированная точка</td><td class="is-us"><b>Маршрут по всему участку</b></td></tr>
+          <tr><th scope="row">Частота измерений</th><td>По графику категории</td><td>Непрерывно в одной точке</td><td class="is-us"><b>Непрерывно вдоль русла</b></td></tr>
+          <tr><th scope="row">Время до результата</th><td>Дни и недели</td><td>Минуты</td><td class="is-us"><b>Минуты, с привязкой к месту</b></td></tr>
+          <tr><th scope="row">Определение источника</th><td>Только версия инспектора</td><td>Фиксирует факт, не источник</td><td class="is-us"><b>5 типов по сигнатуре</b></td></tr>
+          <tr><th scope="row">Стоимость года эксплуатации</th><td>Растёт с числом выездов</td><td>Высокая: монтаж и обслуживание поста</td><td class="is-us"><b>Одна подписка на участок</b></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="ctable__note">Сравнение по методической части: ручной отбор и стационарный пост описаны по действующей практике государственного мониторинга. Экономику года эксплуатации подтверждаем на пилоте по вашему объекту.</p>
+  </div>
+</section>
+
+<!-- ══════════════ 9. ТАРИФЫ ══════════════ -->
+<section class="sec sec--dark" id="pricing">
+  <div class="wrap">
+    <header class="shead">
+      <p class="eyebrow"><span class="eyebrow__line"></span>08 — ТАРИФЫ</p>
+      <h2 class="shead__h">Три уровня —<br>от школьного проекта до&nbsp;области.</h2>
+    </header>
+
+    <div class="plans">
+      <article class="plan">
+        <div class="plan__hd"><h3>Eco</h3><p class="plan__for">Школы, вузы, эко-НКО</p></div>
+        <p class="plan__price">по запросу<span>льготные условия</span></p>
+        <ul class="plan__list">
+          <li>1 водоём, выезды по расписанию</li>
+          <li>6 базовых параметров</li>
+          <li>Платформа, 1 аккаунт</li>
+          <li>Открытые данные для проекта</li>
+          <li>Обучение команды на месте</li>
+        </ul>
+        <a class="btn btn--line full" href="#pilot">Обсудить</a>
+      </article>
+
+      <article class="plan plan--hot">
+        <span class="plan__badge">ЧАЩЕ ВСЕГО БЕРУТ</span>
+        <div class="plan__hd"><h3>Pro</h3><p class="plan__for">Водоканалы, промышленные предприятия</p></div>
+        <p class="plan__price">по запросу<span>подписка на участок в год</span></p>
+        <ul class="plan__list">
+          <li>Всё из Eco</li>
+          <li>Классификация источника по 5 типам</li>
+          <li>Push-оповещения о превышениях</li>
+          <li>Отчёты PDF для надзора + выгрузка CSV</li>
+          <li>Журнал калибровки и поверка</li>
+          <li>Поддержка и сервис аппарата</li>
+        </ul>
+        <a class="btn btn--solid full" href="#pilot">Запросить пилот <span class="arr">→</span></a>
+      </article>
+
+      <article class="plan">
+        <div class="plan__hd"><h3>Gov</h3><p class="plan__for">Акиматы, Казгидромет, бассейновые инспекции</p></div>
+        <p class="plan__price">по запросу<span>по объёму и числу объектов</span></p>
+        <ul class="plan__list">
+          <li>Всё из Pro</li>
+          <li>Несколько водоёмов и аппаратов</li>
+          <li>Роли и разграничение доступа</li>
+          <li>Интеграция по API с вашими системами</li>
+          <li>Хранение данных на территории РК</li>
+          <li>Сопровождение по госзакупу</li>
+        </ul>
+        <a class="btn btn--line full" href="#pilot">Запросить расчёт</a>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════ 10. КАК НАЧАТЬ ПИЛОТ ══════════════ -->
+<section class="sec" id="pilotflow">
+  <div class="wrap">
+    <header class="shead shead--split">
+      <div>
+        <p class="eyebrow"><span class="eyebrow__line"></span>09 — ПИЛОТ</p>
+        <h2 class="shead__h">Месяц — и у вас на руках<br>отчёт по своему водоёму.</h2>
+      </div>
+      <p class="shead__p">Пилот ограничен по срокам и объёму: никакой закупки оборудования, никаких обязательств после отчёта. Дальше решаете вы.</p>
+    </header>
+
+    <ol class="pilot">
+      <li class="pstep">
+        <span class="pstep__t">День 1—3</span>
+        <span class="pstep__n">01</span>
+        <h3>Заявка и разбор объекта</h3>
+        <p>Созваниваемся, смотрим карту водоёма, определяем участок и что именно вы хотите поймать. На выходе — понятная рамка пилота.</p>
+      </li>
+      <li class="pstep">
+        <span class="pstep__t">Неделя 1—2</span>
+        <span class="pstep__n">02</span>
+        <h3>Выезд и калибровка под объект</h3>
+        <p>Приезжаем на водоём, снимаем фоновую норму участка, калибруем приборы под вашу воду и строим маршрут. Учим вашего оператора.</p>
+      </li>
+      <li class="pstep">
+        <span class="pstep__t">Месяц</span>
+        <span class="pstep__n">03</span>
+        <h3>Работа и итоговый отчёт</h3>
+        <p>Судно ходит по маршруту, вы видите данные в приложении. В конце — отчёт с картой, превышениями, классификацией источников и рекомендациями.</p>
+      </li>
+    </ol>
+    <p class="pilot__note">Что нужно от вас: доступ к берегу, контакт ответственного и согласование съёмки на объекте. Всё остальное — на нас.</p>
+  </div>
+</section>
+
+<!-- ══════════════ 11. КОМАНДА ══════════════ -->
+<section class="sec sec--team" id="team">
+  <div class="wrap">
+    <header class="shead">
+      <p class="eyebrow"><span class="eyebrow__line"></span>10 — КОМАНДА</p>
+      <h2 class="shead__h">Кто это делает.</h2>
+    </header>
+
+    <div class="team">
+      <!-- Фото: положите файлы с этими именами в assets/ — они подхватятся сами.
+           Пока файла нет, показывается пунктирный плейсхолдер. Пропорция 4:5. -->
+      <article class="mate">
+        <div class="mate__ph">
+          <img src="assets/team-arnur.jpg" alt="Арнур Арманулы" onerror="this.remove()">
+          <span>ФОТО</span>
+        </div>
+        <h3>Арнур Арманулы</h3>
+        <p class="mate__role">Капитан · ИИ-исследования и питч</p>
+        <p class="mate__bio">Ведёт ИИ-исследования команды и коммуникацию с инвесторами.</p>
+      </article>
+      <article class="mate">
+        <div class="mate__ph">
+          <img src="assets/team-amirali.jpg" alt="Амирали Алтай" onerror="this.remove()">
+          <span>ФОТО</span>
+        </div>
+        <h3>Амирали Алтай</h3>
+        <p class="mate__role">ПО и R&amp;D</p>
+        <p class="mate__bio">Разрабатывает приложение оператора и пайплайн обнаружения микропластика. Прошёл курс A.I. and Multiple View Geometry for 3D Perception, Пусанский национальный университет, 94,95 %. 2-е место в национальном финале Science on Stage Qazaqstan, 2025.</p>
+      </article>
+      <article class="mate">
+        <div class="mate__ph">
+          <img src="assets/team-aikyn.jpg" alt="Айкын Салауатдин" onerror="this.remove()">
+          <span>ФОТО</span>
+        </div>
+        <h3>Айкын Салауатдин</h3>
+        <p class="mate__role">Дизайн и R&amp;D</p>
+        <p class="mate__bio">Компоновка оборудования и промышленный дизайн судна.</p>
+      </article>
+    </div>
+
+    <div class="awards">
+      <p class="awards__cap">ПРИЗНАНИЕ</p>
+      <ul class="awards__list">
+        <li><b>Infomatrix-Asia 2026</b><span>серебряная медаль</span></li>
+        <li><b>Astana Hub</b><span>Startup Academy</span></li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════ 12. ЧАСТЫЕ ВОПРОСЫ ══════════════ -->
+<section class="sec" id="faq">
+  <div class="wrap wrap--narrow">
+    <header class="shead">
+      <p class="eyebrow"><span class="eyebrow__line"></span>11 — ВОПРОСЫ</p>
+      <h2 class="shead__h">То, что спрашивают<br>на первой встрече.</h2>
+    </header>
+
+    <div class="faq">
+      <details class="qa">
+        <summary>Что зимой, когда водоём подо льдом?<span class="qa__ic" aria-hidden="true"></span></summary>
+        <div class="qa__b"><p>В ледостав судно не работает — это честное ограничение. На зиму аппарат снимается на обслуживание и поверку приборов, а мониторинг сводится к точечным отборам на майнах. Сезон хода — от схода льда до ледостава; для большинства объектов это 7—8 месяцев, включая паводок, когда происходит основная часть сбросов.</p></div>
+      </details>
+      <details class="qa">
+        <summary>Что при волне и сильном ветре?<span class="qa__ic" aria-hidden="true"></span></summary>
+        <div class="qa__b"><p>Аппарат рассчитан на внутренние водоёмы: реки, водохранилища, озёра. При превышении порога по волнению маршрут прерывается автоматически, судно возвращается в точку схода и уведомляет оператора. Данные, собранные до прерывания, сохраняются и попадают в отчёт с отметкой об условиях.</p></div>
+      </details>
+      <details class="qa">
+        <summary>Кто обслуживает аппарат?<span class="qa__ic" aria-hidden="true"></span></summary>
+        <div class="qa__b"><p>Обслуживание входит в подписку Pro и Gov: калибровка, замена расходников на датчиках, плановая поверка и ремонт. Вашего оператора мы обучаем базовым операциям — спуск, зарядка, промывка — на этапе пилота. Глубокий сервис остаётся на нас.</p></div>
+      </details>
+      <details class="qa">
+        <summary>Где хранятся данные?<span class="qa__ic" aria-hidden="true"></span></summary>
+        <div class="qa__b"><p>По умолчанию — в облаке с размещением на территории Республики Казахстан. Данные принадлежат заказчику, выгружаются в CSV в любой момент. Для тарифа Gov возможно развёртывание в контуре заказчика; условия фиксируются договором.</p></div>
+      </details>
+      <details class="qa">
+        <summary>Признают ли ваши результаты официально?<span class="qa__ic" aria-hidden="true"></span></summary>
+        <div class="qa__b"><p>Нужно разделять две вещи. Непрерывные измерения на борту — это индикаторный контроль: он показывает, где и когда искать, и служит основанием для реакции. Юридически значимое заключение даёт аккредитованная лаборатория. Поэтому аппарат несёт до шести контрольных ёмкостей: при обнаружении аномалии он отбирает пробу на месте и в момент события — её и передают в лабораторию. Мы не заменяем лабораторию, мы приводим её к нужной точке вовремя.</p></div>
+      </details>
+      <details class="qa">
+        <summary>Что при поломке или потере аппарата?<span class="qa__ic" aria-hidden="true"></span></summary>
+        <div class="qa__b"><p>На время ремонта по тарифам Pro и Gov предоставляется подменный аппарат, чтобы ряд наблюдений не прерывался. Судно ведёт трек и подаёт сигнал при потере связи. Ответственность сторон, страхование и сроки замены фиксируются в договоре до начала работ.</p></div>
+      </details>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════ 13. ФИНАЛЬНЫЙ ПРИЗЫВ ══════════════ -->
+<section class="cta" id="pilot">
+  <div class="cta__ghost" aria-hidden="true">SUBULAQ</div>
+  <div class="wrap">
+    <div class="cta__in">
+      <div class="cta__copy">
+        <p class="eyebrow eyebrow--inv"><span class="eyebrow__line"></span>12 — НАЧАТЬ</p>
+        <h2 class="cta__h">Назовите водоём —<br>вернёмся с планом пилота.</h2>
+        <p class="cta__p">Ответим в течение рабочего дня. Первый разговор ни к чему не обязывает: разберём объект и скажем честно, поможет ли здесь наш аппарат.</p>
+        <ul class="cta__pts">
+          <li>Разбор вашего водоёма на созвоне</li>
+          <li>Рамка пилота со сроками и объёмом</li>
+          <li>Без закупки оборудования</li>
+        </ul>
+      </div>
+
+      <form class="form" id="pilotForm" novalidate>
+        <div class="field">
+          <label for="f-name">Имя</label>
+          <input id="f-name" name="name" type="text" autocomplete="name" placeholder="Как к вам обращаться" required>
+        </div>
+        <div class="field">
+          <label for="f-org">Организация</label>
+          <input id="f-org" name="org" type="text" autocomplete="organization" placeholder="Водоканал, предприятие, школа, акимат" required>
+        </div>
+        <div class="field">
+          <label for="f-water">Водоём</label>
+          <input id="f-water" name="water" type="text" placeholder="Река, водохранилище или озеро" required>
+        </div>
+        <div class="field">
+          <label for="f-contact">Телефон или e-mail</label>
+          <input id="f-contact" name="contact" type="text" placeholder="Как с вами связаться" required>
+        </div>
+        <button class="btn btn--solid full" type="submit">Отправить заявку <span class="arr">→</span></button>
+        <p class="form__ok" id="formOk" hidden>Заявка отправлена. Свяжемся в течение рабочего дня.</p>
+        <p class="form__hint">Нажимая кнопку, вы соглашаетесь на обработку контактных данных для связи по проекту.</p>
+      </form>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════ ФУТЕР ══════════════ -->
+<footer class="foot">
+  <div class="wrap">
+    <div class="foot__top">
+      <div class="foot__brand">
+        <span class="brand__name">SuBulaq<sup>™</sup></span>
+        <p>Автономный мониторинг воды и раннее обнаружение сброса. Казахстан.</p>
+      </div>
+      <nav class="foot__cols" aria-label="Футер">
+        <div><p class="foot__cap">ПРОДУКТ</p><a href="#apparat">Аппарат</a><a href="#how">Как работает</a><a href="#sources">Что определяет</a><a href="#platform">Платформа</a></div>
+        <div><p class="foot__cap">ПРИМЕНЕНИЕ</p><a href="#who">Кому это нужно</a><a href="#compare">Сравнение</a><a href="#pricing">Тарифы</a><a href="#pilotflow">Пилот</a></div>
+        <div><p class="foot__cap">КОМПАНИЯ</p><a href="#team">Команда</a><a href="#faq">Вопросы</a><a href="#problem">Проблема</a></div>
+        <div>
+          <p class="foot__cap">КОНТАКТЫ</p>
+          <!-- TODO: подставить реальные контакты -->
+          <a href="mailto:hello@subulaq.kz">hello@subulaq.kz</a>
+          <a href="tel:+70000000000">+7 (000) 000-00-00</a>
+          <a href="https://instagram.com/subulaq" target="_blank" rel="noopener">Instagram <span class="arr">↗</span></a>
+        </div>
+      </nav>
+    </div>
+    <div class="foot__bot">
+      <p>© <span id="yr">2026</span> SuBulaq. Все права защищены.</p>
+      <p class="foot__slog">ЧИСТАЯ ВОДА — ИЗМЕРИМАЯ ВОДА</p>
+    </div>
+  </div>
+</footer>
+
+<div class="pintip" id="pintip" hidden><b></b><span></span></div>
+
+<script src="script.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js" defer></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js" defer></script>
+<script src="water-dissolve.js" defer></script>
+</body>
+</html>

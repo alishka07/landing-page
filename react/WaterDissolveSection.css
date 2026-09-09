@@ -1,0 +1,194 @@
+/* ═══════════════════════════════════════════════════════════════════
+   WaterDissolveSection — стили
+   Токены и типографика совпадают с основной страницей (styles.css):
+   светлый фон, чёрный Swiss-заголовок, огромное полупрозрачное слово,
+   зелёный акцент только в интерфейсных точках.
+   ═══════════════════════════════════════════════════════════════════ */
+
+.wd-defs { position: absolute; width: 0; height: 0; overflow: hidden; pointer-events: none; }
+
+.wd {
+  --ink: #0B0E0F;
+  --ink-2: #31383A;
+  --mut: #6E7679;
+  --mut-2: #9AA1A3;
+  --line: rgba(11, 14, 15, .10);
+  --pad: clamp(20px, 4vw, 64px);
+  --f: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+
+  position: relative;
+  min-height: min(100svh, 86vw);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: clamp(76px, 8.4vh, 100px) 0 2.6%;
+  overflow: hidden;
+  font-family: var(--f);
+  color: var(--ink);
+  background: linear-gradient(180deg, #F7F9F9 0%, #EFF2F3 62%, #E8ECED 100%);
+}
+
+/* ─── Фоновые слои ─────────────────────────────────────────────────
+   Порядок: вода → судно → брызги → вуаль → слово → блик.
+   Вуаль лежит поверх фото и под текстом: она осветляет кадр ровно
+   настолько, чтобы чёрный заголовок читался поверх воды. */
+.wd__media { position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
+
+.wd__water {
+  position: absolute; inset: -4%;
+  background-position: 50% 100%;
+  background-size: 340% auto;
+  background-repeat: no-repeat;
+  transform: scaleX(-1);
+  filter: blur(1px) saturate(.9) brightness(1.9) contrast(.7);
+  opacity: .62;
+  will-change: transform, opacity;
+}
+
+.wd__usv {
+  position: absolute; inset: 0; width: 100%; height: 100%;
+  object-fit: cover; object-position: 50% 62%;
+  will-change: transform, opacity;
+}
+
+/* Вода и брызги отдельным слоем — тот же кадр по маске, идёт с отставанием.
+   Пиксели совпадают с нижним слоем, поэтому шов маски не виден. */
+.wd__wake {
+  position: absolute; inset: 0;
+  background-position: 50% 62%;
+  background-size: cover;
+  background-repeat: no-repeat;
+  -webkit-mask-image: linear-gradient(180deg, transparent 52%, #000 72%);
+  mask-image: linear-gradient(180deg, transparent 52%, #000 72%);
+  will-change: transform;
+}
+
+.wd__veil {
+  position: absolute; inset: 0;
+  background:
+    radial-gradient(56% 56% at 0% 34%, rgba(248,250,250,.98) 0%, rgba(248,250,250,.82) 44%, rgba(248,250,250,0) 86%),
+    radial-gradient(46% 46% at 100% 24%, rgba(248,250,250,.86) 0%, rgba(248,250,250,0) 74%),
+    linear-gradient(180deg, rgba(248,250,250,.78) 0%, rgba(248,250,250,0) 24%),
+    linear-gradient(0deg, rgba(240,243,244,.5) 0%, rgba(240,243,244,0) 14%);
+}
+
+.wd__ghost {
+  position: absolute; left: 50%; top: 6%; transform: translateX(-50%);
+  font-weight: 600; letter-spacing: .08em; line-height: .82;
+  font-size: clamp(70px, 13.4vw, 232px); padding-left: .08em;
+  color: rgba(11, 14, 15, .075);
+  white-space: nowrap; user-select: none;
+  will-change: transform, opacity, filter;
+}
+
+/* ─── Блик: узкая полоса преломлённого света ─────────────────────── */
+.wd__pass {
+  position: absolute; left: 0; top: 0; width: 30%; height: 100%;
+  pointer-events: none; opacity: 0;
+  transform: translate3d(-60%, 0, 0) skewX(-12deg);
+  background: linear-gradient(90deg,
+    rgba(255,255,255,0) 0%,
+    rgba(255,255,255,.5) 34%,
+    rgba(226,244,238,.75) 50%,
+    rgba(255,255,255,.5) 66%,
+    rgba(255,255,255,0) 100%);
+  mix-blend-mode: screen;
+  filter: blur(19px);
+  will-change: transform, opacity;
+}
+
+/* ─── Сцены ────────────────────────────────────────────────────────
+   Обе занимают один экран: вторая лежит поверх первой и проявляется. */
+.wd__scene {
+  position: relative; z-index: 3;
+  width: 100%; max-width: 1560px; margin: 0 auto; padding: 0 var(--pad);
+}
+.wd__scene--apparatus {
+  position: absolute; inset: 0; z-index: 6;
+  display: flex; flex-direction: column; justify-content: center;
+  opacity: 0; pointer-events: none;
+  will-change: opacity;
+}
+.wd.is-past .wd__scene--apparatus { pointer-events: auto; }
+
+.wd__cols {
+  width: 100%; max-width: 1560px; margin: 0 auto; padding: 0 var(--pad);
+  display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, .75fr);
+  gap: clamp(32px, 5vw, 90px); align-items: start;
+}
+
+.wd__eyebrow {
+  display: flex; align-items: center; gap: 14px;
+  font-size: 11px; font-weight: 500; letter-spacing: .18em; color: var(--mut);
+  text-transform: uppercase; margin: 0 0 24px;
+  will-change: transform, opacity, filter;
+}
+.wd__rule { width: 36px; height: 1px; background: currentColor; opacity: .45; flex: none; }
+
+.wd__h {
+  font-size: clamp(30px, 3.9vw, 56px);
+  font-weight: 600; letter-spacing: -.026em; line-height: 1.07; margin: 0;
+}
+.wd__h em { font-style: normal; color: var(--mut-2); }
+
+/* Строки — отдельные элементы: только так их можно расслоить по вертикали */
+.wd__ln { display: block; }
+.wd__ln > i {
+  display: block; font-style: normal; transform-origin: 0 50%;
+  will-change: transform, opacity, filter;
+}
+
+/* Дорогой SVG-фильтр включается только на время самого растворения */
+.wd.is-wd1 .wd__h--dissolve .wd__ln { filter: url(#wdDissolve); }
+.wd.is-wd2 .wd__h--reform   .wd__ln { filter: url(#wdReform); }
+
+.wd__p {
+  margin: 22px 0 0; font-size: 15.5px; color: var(--mut);
+  line-height: 1.68; max-width: 620px;
+  will-change: transform, opacity, filter;
+}
+.wd__cols .wd__p { margin-top: 6px; }
+
+/* ─── Нижняя строка экрана ─────────────────────────────────────────── */
+.wd__foot {
+  position: absolute; left: 0; right: 0; bottom: 2.6%; z-index: 7;
+  max-width: 1560px; margin: 0 auto; padding: 0 var(--pad);
+  display: flex; align-items: flex-end; justify-content: space-between; gap: 24px;
+  font-size: 9.5px; letter-spacing: .19em; color: #525B5E; line-height: 1.9;
+}
+.wd__foot p { margin: 0; display: flex; align-items: flex-start; gap: 16px; }
+.wd__foot-r { text-align: right; gap: 18px; }
+.wd__vrule { display: block; width: 1px; height: 34px; background: rgba(11,14,15,.42); flex: none; margin-top: 1px; }
+.wd__hrule { display: block; width: 58px; height: 1px; background: rgba(11,14,15,.42); flex: none; margin-top: 15px; }
+.wd__pager { display: flex; gap: 16px; font-size: 11px; letter-spacing: .06em; color: #798285; margin-left: auto; margin-right: 64px; }
+.wd__pager b { color: var(--ink); font-weight: 600; border-bottom: 1px solid var(--ink); padding-bottom: 4px; }
+.wd__foot--2 { opacity: 0; }
+
+/* ─── Адаптив ───────────────────────────────────────────────────────
+   До 1024 px закрепление и растворение не включаются (см. matchMedia
+   в компоненте): сцены становятся двумя обычными экранами подряд. */
+@media (max-width: 1024px) {
+  .wd { min-height: auto; padding: clamp(72px, 9vw, 110px) 0 34px; display: block; }
+  .wd__media { position: absolute; }
+  .wd__scene--apparatus {
+    position: relative; inset: auto; opacity: 1; pointer-events: auto;
+    margin-top: clamp(56px, 9vw, 96px);
+  }
+  .wd__cols { grid-template-columns: 1fr; gap: 24px; padding: 0; }
+  .wd__ghost { top: 3%; font-size: clamp(56px, 13vw, 140px); }
+  .wd__pass { display: none; }
+  .wd__foot { position: relative; bottom: auto; margin-top: 34px; }
+  .wd__foot--2 { opacity: 1; }
+  .wd__pager { display: none; }
+}
+
+@media (max-width: 720px) {
+  .wd__foot { flex-direction: column; align-items: flex-start; gap: 18px; }
+  .wd__foot-r { text-align: left; flex-direction: row-reverse; }
+}
+
+/* Отключённое движение — никаких фильтров и смещений */
+@media (prefers-reduced-motion: reduce) {
+  .wd__pass { display: none; }
+  .wd__ln > i, .wd__eyebrow, .wd__p { filter: none !important; opacity: 1 !important; transform: none !important; }
+}
