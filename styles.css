@@ -459,16 +459,10 @@ sup{font-size:.5em;vertical-align:super;letter-spacing:0}
 .apparat__vis{
   position:relative;margin:0;border-radius:var(--r-l);overflow:hidden;
   background:radial-gradient(80% 70% at 50% 40%,#1A2429 0%,#0F1518 70%);
-  border:1px solid rgba(255,255,255,.07);aspect-ratio:3/2;
+  border:1px solid rgba(255,255,255,.07);aspect-ratio:350/191;
   display:flex;align-items:center;justify-content:center;
 }
-.apparat__vis img{width:100%;height:100%;object-fit:contain}
-.apparat__slot{display:none;flex-direction:column;gap:8px;text-align:center;padding:24px}
-.apparat__vis.is-empty img{display:none}
-.apparat__vis.is-empty .apparat__slot{display:flex}
-.apparat__vis.is-empty{border-style:dashed;border-color:rgba(255,255,255,.16)}
-.apparat__slot-lbl{font-size:10.5px;letter-spacing:.2em;color:#7C8688}
-.apparat__slot-txt{font-size:12.5px;color:#5C6567;letter-spacing:-.01em}
+.apparat__vis img{width:100%;height:100%;object-fit:cover}
 
 .pin{
   position:absolute;left:var(--x);top:var(--y);transform:translate(-50%,-50%);
@@ -1028,20 +1022,24 @@ sup{font-size:.5em;vertical-align:super;letter-spacing:0}
 .qa[open] .qa__ic{transform:rotate(45deg);border-color:rgba(11,14,15,.34)}
 
 /* ─ Раскрытый ответ: тонкая зелёная линия слева ─ */
-.qa__b{
+/* Аккордеон: анимируется высота обёртки, содержимое лежит в .qa__b-in.
+   Без JS элемент просто раскрывается по [open] — контент не теряется. */
+.qa__b{height:0;overflow:hidden;transition:height .42s cubic-bezier(.25,.8,.3,1)}
+.qa[open] .qa__b{height:auto}
+.qa__b-in{
   margin:-4px clamp(22px,2.4vw,34px) 30px calc(clamp(22px,2.4vw,34px) + 66px + 20px);
   padding-left:20px;border-left:2px solid var(--acc);
   font-size:15px;line-height:1.72;color:var(--mut);
-  animation:fade .35s ease-out;
 }
 .qa__b p{margin:0;max-width:74ch}
+@media (prefers-reduced-motion:reduce){.qa__b{transition:none}}
 
 @media (max-width:900px){
   .faq__head{grid-template-columns:1fr;gap:16px;align-items:start}
   .faq__lead{margin-bottom:0;max-width:none}
   .qa summary{grid-template-columns:44px 1fr 34px;gap:0 14px;min-height:72px;padding:20px 20px}
   .qa__ic{width:34px;height:34px}
-  .qa__b{margin:-2px 20px 26px calc(20px + 44px + 14px);padding-left:16px;font-size:14.5px}
+  .qa__b-in{margin:-2px 20px 26px calc(20px + 44px + 14px);padding-left:16px;font-size:14.5px}
   .faq__ghost{font-size:clamp(44px,13vw,96px);bottom:6px}
 }
 

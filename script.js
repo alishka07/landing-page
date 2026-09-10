@@ -129,12 +129,50 @@
     };
   })();
 
-  /* ── FAQ: одновременно открыт один пункт ──── */
+  /* ── FAQ: аккордеон с плавной высотой ─────── */
+  /* details/summary не анимирует высоту сам: держим элемент открытым и гоним
+     height от текущей к целевой. Завершаем по таймеру, а не по transitionend —
+     тот может не сработать (прерванный переход, свёрнутая вкладка). */
   var qas = $$('.qa');
+  var QA_DUR = 420;
+  var qaReduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  var qaSet = function (d, open) {
+    var body = d.querySelector('.qa__b');
+    if (!body || d.open === open && !d._qaT) return;
+    if (d._qaT) { clearTimeout(d._qaT); d._qaT = null; }
+
+    if (qaReduce) {
+      d.open = open;
+      body.style.height = '';
+      return;
+    }
+
+    var from = body.getBoundingClientRect().height;
+    if (open) d.open = true;                 // контент должен быть в потоке, чтобы измериться
+    body.style.height = from + 'px';
+    body.offsetHeight;                       // reflow: фиксируем стартовую высоту
+    body.style.height = (open ? body.scrollHeight : 0) + 'px';
+
+    d._qaT = setTimeout(function () {
+      d._qaT = null;
+      if (open) {
+        body.style.height = 'auto';          // чтобы ответ не обрезался при resize
+      } else {
+        d.open = false;
+        body.style.height = '';
+      }
+    }, QA_DUR + 40);
+  };
+
   qas.forEach(function (d) {
-    d.addEventListener('toggle', function () {
-      if (!d.open) return;
-      qas.forEach(function (o) { if (o !== d) o.open = false; });
+    var sum = d.querySelector('summary');
+    if (!sum) return;
+    sum.addEventListener('click', function (e) {
+      e.preventDefault();                    // раскрытием управляем сами
+      var willOpen = !d.open;
+      if (willOpen) qas.forEach(function (o) { if (o !== d) qaSet(o, false); });
+      qaSet(d, willOpen);
     });
   });
 
