@@ -115,7 +115,7 @@
   /* Автопролистывание экранов, пока пользователь не вмешался */
   var autoplay = (function () {
     var order = ['dash', 'fleet', 'craft', 'report'];
-    var i = 0, timer = null, started = false;
+    var i = 2, timer = null, started = false; // стартуем с открытой вкладки «Аппарат»
     return {
       start: function () {
         if (started || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
@@ -142,8 +142,8 @@
   var revealTargets = [
     '.shead', '.pcard', '.fact', '.chain__i', '.apparat__vis', '.apparat__spec',
     '.step', '.src', '.platform__tabs', '.platform__body', '.who',
-    '.tablewrap', '.ctable__note', '.plan', '.pstep', '.pilot__note',
-    '.mate', '.awards', '.faq', '.cta__copy', '.form'
+    '.tablewrap', '.ctable__note', '.plan',
+    '.faq', '.cta__copy', '.form'
   ].join(',');
 
   var items = $$(revealTargets);
