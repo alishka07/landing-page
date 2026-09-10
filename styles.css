@@ -599,6 +599,45 @@ sup{font-size:.5em;vertical-align:super;letter-spacing:0}
 .ctable tbody tr:last-child th,.ctable tbody tr:last-child td{border-bottom:0}
 .ctable__note{margin-top:20px;font-size:12.5px;color:var(--mut-2);line-height:1.6;max-width:860px}
 
+/* ── Сравнение на узком экране ──────────────
+   Таблица в 820px не помещается в телефон, и колонка SuBulaq —
+   то, ради чего секция существует — уезжала за правый край.
+   Ниже 940px строки распадаются на карточки: параметр сверху,
+   три варианта столбиком, наш — подсвечен и стоит последним. */
+@media (max-width:940px){
+  .tablewrap{overflow:visible;border:0;background:none;border-radius:0}
+  .ctable{min-width:0;display:block}
+  .ctable thead{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+  .ctable tbody{display:grid;gap:12px}
+  .ctable tbody tr{
+    display:block;background:var(--bg-3);border:1px solid var(--line);
+    border-radius:var(--r-m);padding:16px;box-shadow:var(--shadow-s);
+  }
+  .ctable tbody th,
+  .ctable tbody td{display:block;width:auto;padding:0;border-bottom:0}
+  .ctable tbody th{
+    font-family:var(--f-disp);font-size:15px;font-weight:600;letter-spacing:-.02em;
+    line-height:1.25;padding-bottom:12px;margin-bottom:12px;border-bottom:1px solid var(--line-2);
+  }
+  .ctable tbody td{
+    display:flex;align-items:baseline;gap:12px;
+    font-size:13.5px;line-height:1.45;padding:7px 0;
+  }
+  .ctable tbody td::before{
+    content:attr(data-col);flex:0 0 clamp(118px,38%,186px);
+    font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;
+    color:var(--mut-2);line-height:1.5;
+  }
+  .ctable tbody td.is-us{
+    background:rgba(34,197,94,.07);border-left:2px solid var(--acc);
+    border-radius:0 0 15px 15px;
+    margin:10px -16px -16px;padding:12px 16px 13px 14px;
+  }
+  .ctable tbody td.is-us::before{color:#15803D;font-weight:500}
+  .ctable tbody td.is-us b{font-weight:600}
+  .ctable tbody tr:last-child td{border-bottom:0}
+}
+
 /* ═══════════════ 9. ТАРИФЫ ═══════════════ */
 .plans{display:grid;grid-template-columns:repeat(3,1fr);gap:clamp(16px,1.8vw,24px);align-items:start}
 .plan{
