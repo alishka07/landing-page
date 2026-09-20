@@ -302,18 +302,24 @@
     </header>
 
     <div class="apparat">
+      <!-- Пока нет assets/vessel-tech.png, кадр с первого экрана подставляется
+           автоматически и затемняется под тёмную секцию. Положите свой рендер
+           узлов — он заменит подстановку, править разметку не нужно. -->
       <figure class="apparat__vis">
-        <img src="assets/vessel-tech.png" alt="Устройство судна SuBulaq" onerror="this.closest('.apparat__vis').classList.add('is-empty')">
-        <figcaption class="apparat__slot">
-          <span class="apparat__slot-lbl">СЛОТ ПОД РЕНДЕР УЗЛОВ</span>
-          <span class="apparat__slot-txt">assets/vessel-tech.png · 1800×1200 · вид в три четверти</span>
-        </figcaption>
+        <img src="assets/vessel-tech.png" alt="Устройство судна SuBulaq"
+             onerror="this.onerror=null;this.src='assets/vessel-hero.png';this.closest('.apparat__vis').classList.add('is-fallback')">
+        <span class="apparat__grade" aria-hidden="true"></span>
         <!-- Выноски: координаты --x / --y подгоняются под ваш рендер -->
-        <button class="pin" style="--x:26%;--y:32%" data-pin="Мультипараметрический зонд" data-desc="pH, растворённый кислород, электропроводность, мутность, температура, ОВП">1</button>
-        <button class="pin" style="--x:45%;--y:20%" data-pin="Камера 4K + ИК" data-desc="Фиксация плёнки, пены и цветности с привязкой к координатам и времени">2</button>
-        <button class="pin" style="--x:62%;--y:27%" data-pin="Солнечная панель" data-desc="Подзарядка в ходе смены, продлевает автономность в светлое время суток">3</button>
-        <button class="pin" style="--x:76%;--y:40%" data-pin="Связь LTE / спутник" data-desc="Телеметрия в облако в реальном времени, буферизация при потере сети">4</button>
-        <button class="pin" style="--x:38%;--y:64%" data-pin="Узел забора пробы" data-desc="Отбор с регулируемой глубины, до 6 контрольных ёмкостей для лаборатории">5</button>
+        <button class="pin" style="--i:0;--x:55.5%;--y:13.5%" data-pin="Мультипараметрический зонд" data-desc="pH, растворённый кислород, электропроводность, мутность, температура, ОВП">1</button>
+        <button class="pin" style="--i:1;--x:51%;--y:25%" data-pin="Камера 4K + ИК" data-desc="Фиксация плёнки, пены и цветности с привязкой к координатам и времени">2</button>
+        <button class="pin" style="--i:2;--x:62%;--y:20%" data-pin="Антенны LTE / спутник" data-desc="Телеметрия в облако в реальном времени, буферизация при потере сети">3</button>
+        <button class="pin" style="--i:3;--x:44%;--y:44%" data-pin="Солнечная панель" data-desc="Подзарядка в ходе смены, продлевает автономность в светлое время суток">4</button>
+        <button class="pin" style="--i:4;--x:41%;--y:61%" data-pin="Узел забора пробы" data-desc="Отбор с регулируемой глубины, до 6 контрольных ёмкостей для лаборатории">5</button>
+        <figcaption class="apparat__cap">
+          <span class="apparat__cap-dot" aria-hidden="true"></span>
+          <!-- на тач-устройствах выноска открывается тапом, а не наведением -->
+          <span class="apparat__cap-txt"><span class="apparat__cap-hover">Наведите</span><span class="apparat__cap-tap">Нажмите</span> на точку — узел и что он измеряет</span>
+        </figcaption>
       </figure>
 
       <div class="apparat__spec">
@@ -623,19 +629,19 @@
     <ol class="pilot">
       <li class="pstep">
         <span class="pstep__t">День 1—3</span>
-        <span class="pstep__n">01</span>
+        <span class="pstep__n" aria-hidden="true">01</span>
         <h3>Заявка и разбор объекта</h3>
         <p>Созваниваемся, смотрим карту водоёма, определяем участок и что именно вы хотите поймать. На выходе — понятная рамка пилота.</p>
       </li>
       <li class="pstep">
         <span class="pstep__t">Неделя 1—2</span>
-        <span class="pstep__n">02</span>
+        <span class="pstep__n" aria-hidden="true">02</span>
         <h3>Выезд и калибровка под объект</h3>
         <p>Приезжаем на водоём, снимаем фоновую норму участка, калибруем приборы под вашу воду и строим маршрут. Учим вашего оператора.</p>
       </li>
       <li class="pstep">
         <span class="pstep__t">Месяц</span>
-        <span class="pstep__n">03</span>
+        <span class="pstep__n" aria-hidden="true">03</span>
         <h3>Работа и итоговый отчёт</h3>
         <p>Судно ходит по маршруту, вы видите данные в приложении. В конце — отчёт с картой, превышениями, классификацией источников и рекомендациями.</p>
       </li>
@@ -654,11 +660,14 @@
 
     <div class="team">
       <!-- Фото: положите файлы с этими именами в assets/ — они подхватятся сами.
-           Пока файла нет, показывается пунктирный плейсхолдер. Пропорция 4:5. -->
+           Пока файла нет, на месте портрета стоит оформленная карточка. Пропорция 4:5. -->
       <article class="mate">
         <div class="mate__ph">
           <img src="assets/team-arnur.jpg" alt="Арнур Арманулы" onerror="this.remove()">
-          <span>ФОТО</span>
+          <span class="mate__slot" aria-hidden="true">
+            <b class="mate__slot-n">01</b>
+            <i class="mate__slot-l">ПОРТРЕТ</i>
+          </span>
         </div>
         <h3>Арнур Арманулы</h3>
         <p class="mate__role">Капитан · ИИ-исследования и питч</p>
@@ -667,7 +676,10 @@
       <article class="mate">
         <div class="mate__ph">
           <img src="assets/team-amirali.jpg" alt="Амирали Алтай" onerror="this.remove()">
-          <span>ФОТО</span>
+          <span class="mate__slot" aria-hidden="true">
+            <b class="mate__slot-n">02</b>
+            <i class="mate__slot-l">ПОРТРЕТ</i>
+          </span>
         </div>
         <h3>Амирали Алтай</h3>
         <p class="mate__role">ПО и R&amp;D</p>
@@ -676,7 +688,10 @@
       <article class="mate">
         <div class="mate__ph">
           <img src="assets/team-aikyn.jpg" alt="Айкын Салауатдин" onerror="this.remove()">
-          <span>ФОТО</span>
+          <span class="mate__slot" aria-hidden="true">
+            <b class="mate__slot-n">03</b>
+            <i class="mate__slot-l">ПОРТРЕТ</i>
+          </span>
         </div>
         <h3>Айкын Салауатдин</h3>
         <p class="mate__role">Дизайн и R&amp;D</p>
