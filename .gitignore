@@ -1,3 +1,11 @@
 Thumbs.db
 .DS_Store
 desktop.ini
+
+.local-backup/
+.qa/
+.references/
+AquaWatch/
+node_modules/
+.env
+.env.*
