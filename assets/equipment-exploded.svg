@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="820" height="700" viewBox="0 0 820 700" fill="none">
+ <g stroke="#abc2b0" stroke-width="1.5" stroke-dasharray="5 7">
+  <path d="M410 210V400M160 354 340 422M646 363 470 422M410 427V579"/>
+ </g>
+ <g stroke="#6b8476" stroke-width="2" stroke-linejoin="round">
+  <path d="M192 458Q178 458 178 476V607Q178 652 222 652H247Q277 652 277 607V476Q277 458 262 458Z" fill="#eaf0e9"/>
+  <path d="M178 585V607Q178 652 222 652H247Q277 652 277 607V585Z" fill="#344d40"/>
+  <rect x="195" y="480" width="65" height="76" rx="8" fill="#f5f7f0"/>
+  <path d="M554 458Q540 458 540 476V607Q540 652 584 652H609Q639 652 639 607V476Q639 458 624 458Z" fill="#eaf0e9"/>
+  <path d="M540 585V607Q540 652 584 652H609Q639 652 639 607V585Z" fill="#344d40"/>
+  <rect x="557" y="480" width="65" height="76" rx="8" fill="#f5f7f0"/>
+  <path d="M231 408H590V434H231Z" fill="#718878"/>
+  <path d="M292 371H528L553 404 527 438H292L269 404Z" fill="#f3f6ef"/>
+  <path d="M310 376H511L526 400H296Z" fill="#344d50"/>
+  <path d="M334 376 327 400M369 376 367 400M410 376V400M451 376 453 400M487 376 495 400" stroke="#a6bdb3" stroke-width="1"/>
+  <path d="M358 204H462V218H358Z" fill="#dce6dc"/>
+  <path d="M403 209V105H419V209Z" fill="#eff4ec"/>
+  <rect x="391" y="133" width="41" height="32" rx="5" fill="#3a5545"/>
+  <circle cx="412" cy="149" r="9" fill="#aac5bc"/>
+  <rect x="386" y="79" width="52" height="39" rx="7" fill="#eff4ec"/>
+  <path d="M386 91H438V104H386Z" fill="#344d40"/>
+  <path d="M364 204V47M458 204V31" stroke="#455d4d" stroke-width="4"/>
+  <rect x="99" y="309" width="126" height="72" rx="7" fill="#455d4d"/>
+  <path d="M99 311Q99 304 106 304H218Q225 304 225 311V324H99Z" fill="#ecf1e8"/>
+  <path d="M116 308V298M202 308V298" stroke-width="8"/>
+  <path d="M124 341H197M124 351H197M124 361H197" stroke="#a4baa6"/>
+  <rect x="626" y="299" width="54" height="76" rx="9" fill="#eff3e9"/>
+  <rect x="635" y="289" width="36" height="15" rx="3" fill="#48684f"/>
+  <rect x="636" y="328" width="35" height="23" rx="2" fill="#abc3a6" stroke="none"/>
+  <rect x="694" y="336" width="49" height="39" rx="5" fill="#48604e"/>
+  <path d="M654 290V276H719V335M739 358H761V422" stroke="#6c8877" stroke-width="5"/>
+  <path d="M410 533V563" stroke-width="4"/>
+  <rect x="392" y="561" width="37" height="58" rx="8" fill="#e9f0e6"/>
+  <path d="M392 600H429V619H392Z" fill="#3b5845"/>
+  <path d="M399 619V638M410 619V644M422 619V638" stroke-width="5"/>
+ </g>
+ <g font-family="Arial,sans-serif" fill="#36523d" font-size="17">
+  <text x="480" y="117">Навигация</text><path d="M479 124H438" stroke="#78977e"/>
+  <text x="97" y="284">Питание и запись</text>
+  <text x="611" y="266">Пробоотбор</text>
+  <text x="410" y="666" text-anchor="middle" font-size="15">Датчики в воде</text><path d="M410 646V652" stroke="#78977e"/>
+  <text x="410" y="692" text-anchor="middle" font-size="11" fill="#69816b">Компоновка концепции · видимые разрывы показывают отдельные узлы</text>
+ </g>
+</svg>

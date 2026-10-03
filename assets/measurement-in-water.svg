@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="560" height="340" viewBox="0 0 560 340" fill="none">
+  <rect width="560" height="340" rx="8" fill="#e7efe8"/>
+  <path d="M0 164Q35 156 70 164T140 164T210 164T280 164T350 164T420 164T490 164T560 164V340H0Z" fill="#c4dcd7"/>
+  <path d="M0 164Q35 156 70 164T140 164T210 164T280 164T350 164T420 164T490 164T560 164" stroke="#739e95" stroke-width="1.5"/>
+  <path d="M22 211H177M348 222H535M36 294H182M340 308H521" stroke="#a9ccc3" stroke-linecap="round"/>
+  <g stroke="#536f61" stroke-width="1.7" stroke-linejoin="round">
+    <path d="M102 124Q102 108 119 108H177Q190 108 190 124V166Q187 180 174 180H118Q103 180 102 166Z" fill="#f8faf5"/>
+    <path d="M370 124Q370 108 387 108H445Q458 108 458 124V166Q455 180 442 180H386Q371 180 370 166Z" fill="#f8faf5"/>
+    <path d="M103 157H190V167Q187 181 174 181H118Q103 181 103 167ZM370 157H458V167Q455 181 442 181H386Q371 181 370 167Z" fill="#344b41"/>
+    <path d="M168 115H391V143H168Z" fill="#e8eee5"/>
+    <path d="M196 106H363L375 115H183Z" fill="#fbfcf7"/>
+    <rect x="256" y="83" width="49" height="32" rx="4" fill="#455f51"/>
+    <path d="M280 83V47M273 48H288M247 83V62"/>
+    <path d="M280 143V214" stroke-width="3"/>
+    <rect x="265" y="213" width="30" height="49" rx="5" fill="#f7faf2"/>
+    <path d="M265 247H295V262H265Z" fill="#455f51"/>
+    <path d="M270 262V275M280 262V278M290 262V275" stroke-width="4" stroke-linecap="round"/>
+  </g>
+  <g font-family="Arial, sans-serif" font-size="13" fill="#365c4d">
+    <text x="342" y="52">Запись на борту</text>
+    <text x="342" y="70" font-size="11" fill="#607d70">Показание, координаты, время</text>
+    <path d="M342 82H320L299 96" stroke="#6b8e7d" fill="none"/>
+    <text x="25" y="241">Датчики в воде</text>
+    <path d="M133 238H214L262 250" stroke="#6b8e7d" fill="none"/>
+    <text x="398" y="195" font-size="11" fill="#607d70">Поверхность воды</text>
+    <text x="280" y="321" text-anchor="middle" font-size="10" fill="#607d70">Условный разрез · глубина установки уточняется</text>
+  </g>
+</svg>

@@ -1,7 +1,7 @@
 import * as THREE from './assets/vendor/three.module.min.js';
 
 // Artistic concept, not a dimensioned engineering model of the prototype.
-export function createVessel() {
+export function createVessel({equipment=false}={}) {
  const source=new THREE.Group(),cache=new Map();let assemblyPart='deck';
  const coat=new THREE.MeshPhysicalMaterial({color:0xdfe5e3,metalness:.12,roughness:.36,clearcoat:.24,clearcoatRoughness:.3});
  const rubber=new THREE.MeshStandardMaterial({color:0x121a1e,metalness:.04,roughness:.77});
@@ -103,7 +103,7 @@ export function createVessel() {
 
  assemblyPart='modules';
  panel(.88,.08,.62,graphite,0,.842,-.66,.04);panel(.83,.023,.57,coat,0,.894,-.66,.035);
- for(const x of [-.25,0,.25]){
+ for(const x of (equipment?[]:[-.25,0,.25])){
   cylinder(.088,.14,coat,x,.976,-.68);cylinder(.09,.018,graphite,x,1.037,-.68);cylinder(.083,.022,metal,x,1.055,-.68);
   for(let i=0;i<8;i++){const a=i*Math.PI/4;beam([x+Math.sin(a)*.086,1.034,-.68+Math.cos(a)*.086],[x+Math.sin(a)*.086,1.065,-.68+Math.cos(a)*.086],.003,rubber);}
  }
@@ -126,6 +126,44 @@ export function createVessel() {
  cylinder(.095,.14,graphite,-.34,.92,-1.32);cylinder(.12,.075,coat,-.34,1.024,-1.32,32);cylinder(.122,.015,metal,-.34,1.065,-1.32,32);
  const cable=new THREE.CatmullRomCurve3([new THREE.Vector3(.087,1.67,-.065),new THREE.Vector3(.126,1.3,-.09),new THREE.Vector3(.15,.94,-.16),new THREE.Vector3(.31,.84,-.38)]);
  mesh(new THREE.TubeGeometry(cable,24,.009,6,false),rubber);
+
+ if(equipment){
+  // Proposed functional modules for the explanatory view; not a production layout.
+  assemblyPart='sensors';
+  beam([-.22,.38,.98],[-.22,-.28,.98],.028,metal);
+  cylinder(.14,.44,graphite,-.22,-.47,.98,32);
+  cylinder(.145,.05,metal,-.22,-.26,.98,32);
+  cylinder(.145,.05,metal,-.22,-.69,.98,32);
+  for(const [dx,dz] of [[-.065,0],[.065,0],[0,.065],[0,-.065]]){
+   cylinder(.021,.15,metal,-.22+dx,-.78,.98+dz,16);
+   cylinder(.024,.028,dx?glass:indicator,-.22+dx,-.855,.98+dz,16);
+  }
+  for(const angle of [0,Math.PI/2,Math.PI,Math.PI*1.5])beam([-.22+Math.cos(angle)*.14,-.67,.98+Math.sin(angle)*.14],[-.22+Math.cos(angle)*.14,-.9,.98+Math.sin(angle)*.14],.012,metal);
+
+  assemblyPart='sampling';
+  panel(.62,.035,1.15,metal,.4,.30,.03,.04);
+  cylinder(.205,.44,coat,.4,.54,.30,32);
+  cylinder(.205,.045,graphite,.4,.78,.30,32);
+  cylinder(.16,.026,coat,.4,.815,.30,32);
+  panel(.22,.135,.015,indicator,.4,.54,.506,.012);
+  panel(.40,.26,.33,graphite,.4,.455,-.36,.035);
+  cylinder(.09,.10,metal,.4,.47,-.565,24).rotation.x=Math.PI/2;
+  const intake=new THREE.CatmullRomCurve3([new THREE.Vector3(.4,.79,.30),new THREE.Vector3(.58,.83,.09),new THREE.Vector3(.57,.62,-.36),new THREE.Vector3(.71,.24,.92),new THREE.Vector3(.71,-.40,1.22)]);
+  mesh(new THREE.TubeGeometry(intake,40,.025,10,false),rubber);
+  cylinder(.065,.13,metal,.71,-.42,1.22,24);
+
+  assemblyPart='power';
+  panel(.56,.35,1.12,graphite,-.40,.51,.03,.045);
+  panel(.56,.035,1.12,coat,-.40,.70,.03,.045);
+  for(const z of [-.37,-.2,-.03,.14,.31])panel(.44,.012,.017,rubber,-.40,.724,z,.005);
+  for(const x of [-.53,-.27]){cylinder(.034,.04,metal,x,.74,.47,16);cylinder(.024,.025,x<-.4?rubber:indicator,x,.77,.47,16);}
+  const powerCable=new THREE.CatmullRomCurve3([new THREE.Vector3(-.27,.77,.47),new THREE.Vector3(-.14,.88,.54),new THREE.Vector3(-.08,.73,.25),new THREE.Vector3(-.06,.53,-.37)]);
+  mesh(new THREE.TubeGeometry(powerCable,24,.016,8,false),rubber);
+  panel(.49,.018,.32,indicator,-.40,.46,-.74,.015);
+  panel(.17,.055,.12,graphite,-.41,.494,-.75,.008);
+  for(const x of [-.58,-.23])for(const z of [-.82,-.74,-.66])panel(.037,.035,.032,metal,x,.482,z,.004);
+  cylinder(.033,.065,metal,-.53,.50,-.67,16);
+ }
 
  // Hundreds of details batched into one draw call per material per assembly.
  source.updateMatrixWorld(true);const batches=new Map(),geometries=new Set();let detailCount=0;
