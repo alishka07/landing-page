@@ -379,7 +379,7 @@ $$('[data-service]').forEach(link=>link.addEventListener('click',event=>{event.p
     $('#draftResult').hidden = true;
   }));
   const form = $('#pilotForm');
-  const recipient = 'amiralialtai1998@gmail.com';
+  const recipient = 'subulaqdynamics@gmail.com';
   form.addEventListener('input', () => { $('#draftResult').hidden = true; });
   form.addEventListener('change', () => { $('#draftResult').hidden = true; });
   form.addEventListener('submit', event => {
